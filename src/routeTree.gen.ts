@@ -10,33 +10,73 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as HoodiesRouteImport } from './routes/hoodies'
+import { Route as PantsRouteImport } from './routes/pants'
+import { Route as ShoesRouteImport } from './routes/shoes'
+import { Route as TshirtsRouteImport } from './routes/tshirts'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HoodiesRoute = HoodiesRouteImport.update({
+  id: '/hoodies',
+  path: '/hoodies',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PantsRoute = PantsRouteImport.update({
+  id: '/pants',
+  path: '/pants',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShoesRoute = ShoesRouteImport.update({
+  id: '/shoes',
+  path: '/shoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TshirtsRoute = TshirtsRouteImport.update({
+  id: '/tshirts',
+  path: '/tshirts',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/hoodies': typeof HoodiesRoute
+  '/pants': typeof PantsRoute
+  '/shoes': typeof ShoesRoute
+  '/tshirts': typeof TshirtsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/hoodies': typeof HoodiesRoute
+  '/pants': typeof PantsRoute
+  '/shoes': typeof ShoesRoute
+  '/tshirts': typeof TshirtsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/hoodies': typeof HoodiesRoute
+  '/pants': typeof PantsRoute
+  '/shoes': typeof ShoesRoute
+  '/tshirts': typeof TshirtsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/hoodies' | '/pants' | '/shoes' | '/tshirts'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/hoodies' | '/pants' | '/shoes' | '/tshirts'
+  id: '__root__' | '/' | '/hoodies' | '/pants' | '/shoes' | '/tshirts'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  HoodiesRoute: typeof HoodiesRoute
+  PantsRoute: typeof PantsRoute
+  ShoesRoute: typeof ShoesRoute
+  TshirtsRoute: typeof TshirtsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +88,43 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/hoodies': {
+      id: '/hoodies'
+      path: '/hoodies'
+      fullPath: '/hoodies'
+      preLoaderRoute: typeof HoodiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pants': {
+      id: '/pants'
+      path: '/pants'
+      fullPath: '/pants'
+      preLoaderRoute: typeof PantsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shoes': {
+      id: '/shoes'
+      path: '/shoes'
+      fullPath: '/shoes'
+      preLoaderRoute: typeof ShoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tshirts': {
+      id: '/tshirts'
+      path: '/tshirts'
+      fullPath: '/tshirts'
+      preLoaderRoute: typeof TshirtsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  HoodiesRoute: HoodiesRoute,
+  PantsRoute: PantsRoute,
+  ShoesRoute: ShoesRoute,
+  TshirtsRoute: TshirtsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
