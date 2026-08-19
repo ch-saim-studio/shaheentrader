@@ -1,7 +1,9 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { Menu, ShoppingBag, User2, LogOut, LayoutDashboard, Package } from "lucide-react";
+import { Menu, ShoppingBag, User2, LogOut, LayoutDashboard, Package, Search } from "lucide-react";
 import { useState } from "react";
+import { Input } from "@/components/ui/input";
+
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import {
@@ -22,8 +24,16 @@ export function SiteHeader() {
   const { count } = useCart();
   const { user, username, isAdmin } = useAuth();
   const [open, setOpen] = useState(false);
+  const [term, setTerm] = useState("");
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+
+  function submitSearch(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setOpen(false);
+    void navigate({ to: "/search", search: { q: term.trim().slice(0, 100), category: "" } });
+  }
+
 
   async function signOut() {
     await queryClient.cancelQueries();
