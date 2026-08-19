@@ -114,7 +114,23 @@ export function SiteHeader() {
         </nav>
 
         <div className="ml-auto flex items-center gap-1">
+          <form onSubmit={submitSearch} className="relative hidden lg:block">
+            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={term}
+              onChange={(e) => setTerm(e.target.value)}
+              placeholder="Search"
+              aria-label="Search products"
+              className="h-9 w-44 pl-9"
+            />
+          </form>
+          <Button asChild variant="ghost" size="icon" aria-label="Search" className="lg:hidden">
+            <Link to="/search" search={{ q: "", category: "" }}>
+              <Search className="size-5" />
+            </Link>
+          </Button>
           <Button asChild variant="ghost" size="icon" className="relative" aria-label="Cart">
+
             <Link to="/cart">
               <ShoppingBag className="size-5" />
               {count > 0 && (
