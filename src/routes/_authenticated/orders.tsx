@@ -1,7 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useEffect, useRef } from "react";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { formatPrice, type Order, type OrderItem } from "@/lib/store";
+import { OrderProgress, ORDER_STATUS_MESSAGES } from "@/components/OrderProgress";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -23,6 +26,8 @@ type OrderWithItems = Order & { order_items: OrderItem[] };
 function MyOrders() {
   const { data, isLoading } = useQuery({
     queryKey: ["my-orders"],
+    refetchInterval: 30_000,
+    refetchOnWindowFocus: true,
     queryFn: async (): Promise<OrderWithItems[]> => {
       const { data, error } = await supabase
         .from("orders")
@@ -33,9 +38,31 @@ function MyOrders() {
     },
   });
 
+  // Notify the customer in-app whenever an order's status changes.
+  const seen = useRef<Map<string, string> | null>(null);
+  useEffect(() => {
+    if (!data) return;
+    if (seen.current === null) {
+      seen.current = new Map(data.map((o) => [o.id, o.status]));
+      return;
+    }
+    for (const o of data) {
+      const prev = seen.current.get(o.id);
+      if (prev && prev !== o.status) {
+        toast.info(`Order #${o.id.slice(0, 8).toUpperCase()} is now ${o.status}`, {
+          description: ORDER_STATUS_MESSAGES[o.status],
+        });
+      }
+      seen.current.set(o.id, o.status);
+    }
+  }, [data]);
+
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
       <h1 className="text-display text-5xl">My orders</h1>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Progress updates automatically — you'll get a notification when the status changes.
+      </p>
 
       {isLoading ? (
         <div className="mt-6 space-y-3">
@@ -57,7 +84,10 @@ function MyOrders() {
                   {o.status}
                 </Badge>
               </div>
-              <ul className="mt-3 space-y-2">
+
+              <OrderProgress status={o.status} />
+
+              <ul className="mt-4 space-y-2 border-t border-border pt-3">
                 {o.order_items.map((it) => (
                   <li key={it.id} className="flex items-center gap-3 text-sm">
                     <img

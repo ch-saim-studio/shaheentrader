@@ -1,7 +1,9 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { Menu, ShoppingBag, User2, LogOut, LayoutDashboard, Package } from "lucide-react";
+import { Menu, ShoppingBag, User2, LogOut, LayoutDashboard, Package, Search } from "lucide-react";
 import { useState } from "react";
+import { Input } from "@/components/ui/input";
+
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import {
@@ -22,8 +24,16 @@ export function SiteHeader() {
   const { count } = useCart();
   const { user, username, isAdmin } = useAuth();
   const [open, setOpen] = useState(false);
+  const [term, setTerm] = useState("");
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+
+  function submitSearch(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setOpen(false);
+    void navigate({ to: "/search", search: { q: term.trim().slice(0, 100), category: "" } });
+  }
+
 
   async function signOut() {
     await queryClient.cancelQueries();
@@ -71,6 +81,17 @@ export function SiteHeader() {
                 </Link>
               )}
             </nav>
+            <form onSubmit={submitSearch} className="relative mt-4">
+              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                value={term}
+                onChange={(e) => setTerm(e.target.value)}
+                placeholder="Search products"
+                aria-label="Search products"
+                className="pl-9"
+              />
+            </form>
+
           </SheetContent>
         </Sheet>
 
@@ -93,7 +114,23 @@ export function SiteHeader() {
         </nav>
 
         <div className="ml-auto flex items-center gap-1">
+          <form onSubmit={submitSearch} className="relative hidden lg:block">
+            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={term}
+              onChange={(e) => setTerm(e.target.value)}
+              placeholder="Search"
+              aria-label="Search products"
+              className="h-9 w-44 pl-9"
+            />
+          </form>
+          <Button asChild variant="ghost" size="icon" aria-label="Search" className="lg:hidden">
+            <Link to="/search" search={{ q: "", category: "" }}>
+              <Search className="size-5" />
+            </Link>
+          </Button>
           <Button asChild variant="ghost" size="icon" className="relative" aria-label="Cart">
+
             <Link to="/cart">
               <ShoppingBag className="size-5" />
               {count > 0 && (
