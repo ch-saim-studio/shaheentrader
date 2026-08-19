@@ -158,3 +158,28 @@
 @utility shadow-glow {
   box-shadow: var(--shadow-glow);
 }
+
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  a[href],
+  label[for],
+  summary,
+  select,
+  [role="option"],
+  [role="menuitem"],
+  [role="tab"],
+  input[type="checkbox"],
+  input[type="radio"],
+  input[type="range"],
+  input[type="file"],
+  input[type="submit"],
+  [data-slot="slider-thumb"] {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  [aria-disabled="true"] {
+    cursor: not-allowed;
+  }
+}
