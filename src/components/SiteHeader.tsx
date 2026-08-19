@@ -81,6 +81,17 @@ export function SiteHeader() {
                 </Link>
               )}
             </nav>
+            <form onSubmit={submitSearch} className="relative mt-4">
+              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                value={term}
+                onChange={(e) => setTerm(e.target.value)}
+                placeholder="Search products"
+                aria-label="Search products"
+                className="pl-9"
+              />
+            </form>
+
           </SheetContent>
         </Sheet>
 
