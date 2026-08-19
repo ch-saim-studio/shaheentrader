@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CartRouteImport } from './routes/cart'
 import { Route as HoodiesRouteImport } from './routes/hoodies'
 import { Route as PantsRouteImport } from './routes/pants'
+import { Route as SearchRouteImport } from './routes/search'
 import { Route as ShoesRouteImport } from './routes/shoes'
 import { Route as TshirtsRouteImport } from './routes/tshirts'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
@@ -49,6 +50,11 @@ const HoodiesRoute = HoodiesRouteImport.update({
 const PantsRoute = PantsRouteImport.update({
   id: '/pants',
   path: '/pants',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SearchRoute = SearchRouteImport.update({
+  id: '/search',
+  path: '/search',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ShoesRoute = ShoesRouteImport.update({
@@ -88,6 +94,7 @@ export interface FileRoutesByFullPath {
   '/cart': typeof CartRoute
   '/hoodies': typeof HoodiesRoute
   '/pants': typeof PantsRoute
+  '/search': typeof SearchRoute
   '/shoes': typeof ShoesRoute
   '/tshirts': typeof TshirtsRoute
   '/admin': typeof AuthenticatedAdminRoute
@@ -101,6 +108,7 @@ export interface FileRoutesByTo {
   '/cart': typeof CartRoute
   '/hoodies': typeof HoodiesRoute
   '/pants': typeof PantsRoute
+  '/search': typeof SearchRoute
   '/shoes': typeof ShoesRoute
   '/tshirts': typeof TshirtsRoute
   '/admin': typeof AuthenticatedAdminRoute
@@ -116,6 +124,7 @@ export interface FileRoutesById {
   '/cart': typeof CartRoute
   '/hoodies': typeof HoodiesRoute
   '/pants': typeof PantsRoute
+  '/search': typeof SearchRoute
   '/shoes': typeof ShoesRoute
   '/tshirts': typeof TshirtsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
@@ -131,6 +140,7 @@ export interface FileRouteTypes {
     | '/cart'
     | '/hoodies'
     | '/pants'
+    | '/search'
     | '/shoes'
     | '/tshirts'
     | '/admin'
@@ -144,6 +154,7 @@ export interface FileRouteTypes {
     | '/cart'
     | '/hoodies'
     | '/pants'
+    | '/search'
     | '/shoes'
     | '/tshirts'
     | '/admin'
@@ -158,6 +169,7 @@ export interface FileRouteTypes {
     | '/cart'
     | '/hoodies'
     | '/pants'
+    | '/search'
     | '/shoes'
     | '/tshirts'
     | '/_authenticated/admin'
@@ -173,6 +185,7 @@ export interface RootRouteChildren {
   CartRoute: typeof CartRoute
   HoodiesRoute: typeof HoodiesRoute
   PantsRoute: typeof PantsRoute
+  SearchRoute: typeof SearchRoute
   ShoesRoute: typeof ShoesRoute
   TshirtsRoute: typeof TshirtsRoute
   ProductSlugRoute: typeof ProductSlugRoute
@@ -220,6 +233,13 @@ declare module '@tanstack/react-router' {
       path: '/pants'
       fullPath: '/pants'
       preLoaderRoute: typeof PantsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/search': {
+      id: '/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof SearchRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/shoes': {
@@ -289,6 +309,7 @@ const rootRouteChildren: RootRouteChildren = {
   CartRoute: CartRoute,
   HoodiesRoute: HoodiesRoute,
   PantsRoute: PantsRoute,
+  SearchRoute: SearchRoute,
   ShoesRoute: ShoesRoute,
   TshirtsRoute: TshirtsRoute,
   ProductSlugRoute: ProductSlugRoute,
