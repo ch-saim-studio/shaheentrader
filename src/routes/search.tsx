@@ -44,6 +44,9 @@ function SearchPage() {
   );
   const [sizes, setSizes] = useState<string[]>([]);
   const [maxPrice, setMaxPrice] = useState<number | null>(null);
+  const [sort, setSort] = useState("newest");
+  const [page, setPage] = useState(1);
+
 
   const { data, isLoading } = useQuery({
     queryKey: ["products", "all"],
