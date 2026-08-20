@@ -67,7 +67,11 @@ export type Database = {
           address: string
           created_at: string
           customer_name: string
+          email: string
           id: string
+          payment_method: string
+          payment_ref: string | null
+          payment_status: string
           phone: string
           status: string
           total: number
@@ -77,7 +81,11 @@ export type Database = {
           address: string
           created_at?: string
           customer_name: string
+          email?: string
           id?: string
+          payment_method?: string
+          payment_ref?: string | null
+          payment_status?: string
           phone: string
           status?: string
           total?: number
@@ -87,7 +95,11 @@ export type Database = {
           address?: string
           created_at?: string
           customer_name?: string
+          email?: string
           id?: string
+          payment_method?: string
+          payment_ref?: string | null
+          payment_status?: string
           phone?: string
           status?: string
           total?: number
@@ -105,6 +117,7 @@ export type Database = {
           image_url: string
           name: string
           price: number
+          size_stock: Json
           sizes: string[]
           slug: string
           stock: number
@@ -118,6 +131,7 @@ export type Database = {
           image_url?: string
           name: string
           price?: number
+          size_stock?: Json
           sizes?: string[]
           slug: string
           stock?: number
@@ -131,6 +145,7 @@ export type Database = {
           image_url?: string
           name?: string
           price?: number
+          size_stock?: Json
           sizes?: string[]
           slug?: string
           stock?: number
@@ -157,6 +172,60 @@ export type Database = {
           username?: string
         }
         Relationships: []
+      }
+      reviews: {
+        Row: {
+          author_name: string
+          comment: string
+          created_at: string
+          id: string
+          order_id: string
+          product_id: string
+          rating: number
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          author_name?: string
+          comment?: string
+          created_at?: string
+          id?: string
+          order_id: string
+          product_id: string
+          rating?: number
+          title?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          author_name?: string
+          comment?: string
+          created_at?: string
+          id?: string
+          order_id?: string
+          product_id?: string
+          rating?: number
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
