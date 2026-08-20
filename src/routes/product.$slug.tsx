@@ -4,8 +4,9 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { ChevronLeft, ShoppingBag } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { formatPrice, type Product } from "@/lib/store";
+import { availableStock, formatPrice, sizeStockOf, totalStock, type Product } from "@/lib/store";
 import { useCart } from "@/lib/cart";
+import { ProductReviews } from "@/components/ProductReviews";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -29,11 +30,13 @@ export const Route = createFileRoute("/product/$slug")({
 
 function ProductDetail() {
   const { slug } = Route.useParams();
-  const { add } = useCart();
+  const { add, lines } = useCart();
   const [size, setSize] = useState<string | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ["product", slug],
+    refetchInterval: 20_000,
+    refetchOnWindowFocus: true,
     queryFn: async (): Promise<Product> => {
       const { data, error } = await supabase.from("products").select("*").eq("slug", slug).maybeSingle();
       if (error) throw error;
@@ -55,12 +58,26 @@ function ProductDetail() {
     );
   }
 
-  const soldOut = data.stock <= 0;
+  const stockBySize = sizeStockOf(data);
+  const remaining = totalStock(data);
+  const soldOut = remaining <= 0;
+  const selectedStock = availableStock(data, size);
+  const inBag = lines
+    .filter((l) => l.productId === data.id && (data.sizes.length === 0 || l.size === size))
+    .reduce((s, l) => s + l.quantity, 0);
 
   function addToCart() {
     if (!data) return;
     if (data.sizes.length > 0 && !size) {
       toast.error("Pick a size first");
+      return;
+    }
+    if (selectedStock <= 0) {
+      toast.error("That size is out of stock");
+      return;
+    }
+    if (inBag >= selectedStock) {
+      toast.error(`Only ${selectedStock} left in stock`);
       return;
     }
     add({
@@ -107,38 +124,55 @@ function ProductDetail() {
                 Select size
               </p>
               <div className="mt-2 flex flex-wrap gap-2">
-                {data.sizes.map((s) => (
-                  <button
-                    key={s}
-                    type="button"
-                    onClick={() => setSize(s)}
-                    className={`min-w-12 rounded-md border px-3 py-2 text-sm font-semibold transition-colors ${
-                      size === s
-                        ? "border-primary bg-primary text-primary-foreground"
-                        : "border-border bg-card text-foreground hover:border-primary"
-                    }`}
-                  >
-                    {s}
-                  </button>
-                ))}
+                {data.sizes.map((s) => {
+                  const left = stockBySize[s] ?? 0;
+                  const disabled = left <= 0;
+                  return (
+                    <button
+                      key={s}
+                      type="button"
+                      disabled={disabled}
+                      title={disabled ? "Out of stock" : `${left} left`}
+                      onClick={() => setSize(s)}
+                      className={`relative min-w-12 rounded-md border px-3 py-2 text-sm font-semibold transition-colors ${
+                        disabled
+                          ? "cursor-not-allowed border-border bg-muted text-muted-foreground line-through opacity-60"
+                          : size === s
+                            ? "border-primary bg-primary text-primary-foreground"
+                            : "border-border bg-card text-foreground hover:border-primary"
+                      }`}
+                    >
+                      {s}
+                    </button>
+                  );
+                })}
               </div>
+              {size && (
+                <p className="mt-2 text-xs text-muted-foreground">
+                  {selectedStock > 0
+                    ? `${selectedStock} left in size ${size}`
+                    : `Size ${size} is out of stock`}
+                </p>
+              )}
             </div>
           )}
 
           <p className="mt-4 text-sm text-muted-foreground">
-            {soldOut ? "Currently sold out" : `${data.stock} in stock`}
+            {soldOut ? "Currently sold out" : `${remaining} in stock`}
           </p>
 
           <Button
             size="lg"
             className="mt-6 w-full font-semibold uppercase tracking-wide sm:w-auto"
-            disabled={soldOut}
+            disabled={soldOut || (data.sizes.length > 0 && size !== null && selectedStock <= 0)}
             onClick={addToCart}
           >
             <ShoppingBag className="mr-2 size-4" /> Add to bag
           </Button>
         </div>
       </div>
+
+      <ProductReviews productId={data.id} />
     </div>
   );
 }
