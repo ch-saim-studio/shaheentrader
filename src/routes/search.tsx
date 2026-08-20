@@ -44,6 +44,9 @@ function SearchPage() {
   );
   const [sizes, setSizes] = useState<string[]>([]);
   const [maxPrice, setMaxPrice] = useState<number | null>(null);
+  const [sort, setSort] = useState("newest");
+  const [page, setPage] = useState(1);
+
 
   const { data, isLoading } = useQuery({
     queryKey: ["products", "all"],
@@ -81,10 +84,34 @@ function SearchPage() {
     });
   }, [products, q, categories, sizes, price]);
 
-  const toggle = (value: string, list: string[], set: (v: string[]) => void) =>
+  const sorted = useMemo(() => {
+    const list = [...results];
+    switch (sort) {
+      case "price-asc":
+        return list.sort((a, b) => Number(a.price) - Number(b.price));
+      case "price-desc":
+        return list.sort((a, b) => Number(b.price) - Number(a.price));
+      case "name":
+        return list.sort((a, b) => a.name.localeCompare(b.name));
+      case "oldest":
+        return list.sort((a, b) => a.created_at.localeCompare(b.created_at));
+      default:
+        return list.sort((a, b) => b.created_at.localeCompare(a.created_at));
+    }
+  }, [results, sort]);
+
+  const PER_PAGE = 9;
+  const totalPages = Math.max(1, Math.ceil(sorted.length / PER_PAGE));
+  const safePage = Math.min(Math.max(1, page), totalPages);
+  const paged = sorted.slice((safePage - 1) * PER_PAGE, safePage * PER_PAGE);
+
+  const toggle = (value: string, list: string[], set: (v: string[]) => void) => {
+    setPage(1);
     set(list.includes(value) ? list.filter((v) => v !== value) : [...list, value]);
+  };
 
   const activeFilters = categories.length + sizes.length + (maxPrice !== null ? 1 : 0);
+
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
@@ -94,7 +121,11 @@ function SearchPage() {
         <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           value={q}
-          onChange={(e) => setQ(e.target.value.slice(0, 100))}
+          onChange={(e) => {
+            setPage(1);
+            setQ(e.target.value.slice(0, 100));
+          }}
+
           placeholder="Search tees, hoodies, pants, shoes…"
           aria-label="Search products"
           className="h-12 pl-9"
@@ -180,7 +211,11 @@ function SearchPage() {
               min={500}
               max={priceCap}
               step={100}
-              onValueChange={([v]) => setMaxPrice(v ?? priceCap)}
+              onValueChange={([v]) => {
+                setPage(1);
+                setMaxPrice(v ?? priceCap);
+              }}
+
               className="mt-4 cursor-pointer"
             />
             <p className="mt-2 text-sm font-semibold text-primary">{formatPrice(price)}</p>
