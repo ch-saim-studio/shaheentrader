@@ -121,7 +121,11 @@ function SearchPage() {
         <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           value={q}
-          onChange={(e) => setQ(e.target.value.slice(0, 100))}
+          onChange={(e) => {
+            setPage(1);
+            setQ(e.target.value.slice(0, 100));
+          }}
+
           placeholder="Search tees, hoodies, pants, shoes…"
           aria-label="Search products"
           className="h-12 pl-9"
@@ -207,7 +211,11 @@ function SearchPage() {
               min={500}
               max={priceCap}
               step={100}
-              onValueChange={([v]) => setMaxPrice(v ?? priceCap)}
+              onValueChange={([v]) => {
+                setPage(1);
+                setMaxPrice(v ?? priceCap);
+              }}
+
               className="mt-4 cursor-pointer"
             />
             <p className="mt-2 text-sm font-semibold text-primary">{formatPrice(price)}</p>
