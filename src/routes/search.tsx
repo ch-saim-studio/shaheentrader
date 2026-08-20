@@ -84,10 +84,34 @@ function SearchPage() {
     });
   }, [products, q, categories, sizes, price]);
 
-  const toggle = (value: string, list: string[], set: (v: string[]) => void) =>
+  const sorted = useMemo(() => {
+    const list = [...results];
+    switch (sort) {
+      case "price-asc":
+        return list.sort((a, b) => Number(a.price) - Number(b.price));
+      case "price-desc":
+        return list.sort((a, b) => Number(b.price) - Number(a.price));
+      case "name":
+        return list.sort((a, b) => a.name.localeCompare(b.name));
+      case "oldest":
+        return list.sort((a, b) => a.created_at.localeCompare(b.created_at));
+      default:
+        return list.sort((a, b) => b.created_at.localeCompare(a.created_at));
+    }
+  }, [results, sort]);
+
+  const PER_PAGE = 9;
+  const totalPages = Math.max(1, Math.ceil(sorted.length / PER_PAGE));
+  const safePage = Math.min(Math.max(1, page), totalPages);
+  const paged = sorted.slice((safePage - 1) * PER_PAGE, safePage * PER_PAGE);
+
+  const toggle = (value: string, list: string[], set: (v: string[]) => void) => {
+    setPage(1);
     set(list.includes(value) ? list.filter((v) => v !== value) : [...list, value]);
+  };
 
   const activeFilters = categories.length + sizes.length + (maxPrice !== null ? 1 : 0);
+
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
