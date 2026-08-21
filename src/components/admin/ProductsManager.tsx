@@ -3,7 +3,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { CATEGORIES, formatPrice, slugify, type Product } from "@/lib/store";
+import { CATEGORIES, formatPrice, sizeStockOf, slugify, type Product } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -44,6 +44,8 @@ type Draft = {
   image_url: string;
   sizes: string;
   stock: string;
+  sizeStock: string;
+
   featured: boolean;
 };
 
@@ -55,6 +57,8 @@ const emptyDraft: Draft = {
   image_url: "/images/tshirts.jpg",
   sizes: "S, M, L, XL",
   stock: "10",
+  sizeStock: "S:10, M:10, L:10, XL:10",
+
   featured: false,
 };
 
@@ -80,19 +84,33 @@ export function ProductsManager() {
 
   const save = useMutation({
     mutationFn: async () => {
+      const sizeList = draft.sizes
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+      const sizeStock: Record<string, number> = {};
+      for (const pair of draft.sizeStock.split(",")) {
+        const [key, value] = pair.split(":");
+        const name = key?.trim();
+        const n = Number(value);
+        if (name && sizeList.includes(name) && Number.isFinite(n)) {
+          sizeStock[name] = Math.max(0, Math.trunc(n));
+        }
+      }
+      const totalFromSizes = Object.values(sizeStock).reduce((a, b) => a + b, 0);
       const payload = {
         name: draft.name.trim(),
         category: draft.category,
         description: draft.description.trim(),
         price: Number(draft.price || 0),
         image_url: draft.image_url.trim(),
-        sizes: draft.sizes
-          .split(",")
-          .map((s) => s.trim())
-          .filter(Boolean),
-        stock: Number(draft.stock || 0),
+        sizes: sizeList,
+        size_stock: sizeStock,
+        stock:
+          Object.keys(sizeStock).length > 0 ? totalFromSizes : Number(draft.stock || 0),
         featured: draft.featured,
       };
+
       if (editing) {
         const { error } = await supabase.from("products").update(payload).eq("id", editing.id);
         if (error) throw error;
@@ -142,7 +160,11 @@ export function ProductsManager() {
       image_url: p.image_url,
       sizes: p.sizes.join(", "),
       stock: String(p.stock),
+      sizeStock: Object.entries(sizeStockOf(p))
+        .map(([s, n]) => `${s}:${n}`)
+        .join(", "),
       featured: p.featured,
+
     });
     setOpen(true);
   }
@@ -244,7 +266,7 @@ export function ProductsManager() {
                 />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="p-stock">Stock</Label>
+                <Label htmlFor="p-stock">Stock (no sizes)</Label>
                 <Input
                   id="p-stock"
                   type="number"
@@ -261,6 +283,19 @@ export function ProductsManager() {
                 onChange={(e) => setDraft({ ...draft, sizes: e.target.value })}
               />
             </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="p-size-stock">Stock per size (e.g. S:5, M:0, L:12)</Label>
+              <Input
+                id="p-size-stock"
+                value={draft.sizeStock}
+                onChange={(e) => setDraft({ ...draft, sizeStock: e.target.value })}
+              />
+              <p className="text-xs text-muted-foreground">
+                Sizes with 0 are shown as sold out and cannot be added to a bag. Total stock is
+                calculated from these numbers.
+              </p>
+            </div>
+
             <div className="space-y-1.5">
               <Label htmlFor="p-image">Image URL</Label>
               <Input

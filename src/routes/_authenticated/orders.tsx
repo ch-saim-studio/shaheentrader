@@ -8,6 +8,8 @@ import { OrderProgress, ORDER_STATUS_MESSAGES } from "@/components/OrderProgress
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ReviewForm } from "@/components/ReviewForm";
+
 
 export const Route = createFileRoute("/_authenticated/orders")({
   head: () => ({
@@ -37,6 +39,18 @@ function MyOrders() {
       return (data ?? []) as OrderWithItems[];
     },
   });
+
+  const { data: myReviews } = useQuery({
+    queryKey: ["my-reviews"],
+    queryFn: async (): Promise<{ order_id: string; product_id: string }[]> => {
+      const { data, error } = await supabase.from("reviews").select("order_id, product_id");
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+  const reviewed = new Set((myReviews ?? []).map((r) => `${r.order_id}:${r.product_id}`));
+
+
 
   // Notify the customer in-app whenever an order's status changes.
   const seen = useRef<Map<string, string> | null>(null);
@@ -89,23 +103,40 @@ function MyOrders() {
 
               <ul className="mt-4 space-y-2 border-t border-border pt-3">
                 {o.order_items.map((it) => (
-                  <li key={it.id} className="flex items-center gap-3 text-sm">
-                    <img
-                      src={it.image_url}
-                      alt={it.product_name}
-                      loading="lazy"
-                      width={1024}
-                      height={1024}
-                      className="size-12 rounded-md object-cover"
-                    />
-                    <span className="min-w-0 flex-1 truncate">
-                      {it.product_name}
-                      {it.size ? ` · ${it.size}` : ""} × {it.quantity}
-                    </span>
-                    <span>{formatPrice(Number(it.price) * it.quantity)}</span>
+                  <li key={it.id} className="space-y-2 text-sm">
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={it.image_url}
+                        alt={it.product_name}
+                        loading="lazy"
+                        width={1024}
+                        height={1024}
+                        className="size-12 rounded-md object-cover"
+                      />
+                      <span className="min-w-0 flex-1 truncate">
+                        {it.product_name}
+                        {it.size ? ` · ${it.size}` : ""} × {it.quantity}
+                      </span>
+                      <span>{formatPrice(Number(it.price) * it.quantity)}</span>
+                    </div>
+
+                    {o.status === "delivered" &&
+                      it.product_id &&
+                      (reviewed.has(`${o.id}:${it.product_id}`) ? (
+                        <p className="text-xs text-muted-foreground">
+                          ✓ You reviewed this product — thank you!
+                        </p>
+                      ) : (
+                        <ReviewForm
+                          productId={it.product_id}
+                          orderId={o.id}
+                          productName={it.product_name}
+                        />
+                      ))}
                   </li>
                 ))}
               </ul>
+
               <p className="mt-3 border-t border-border pt-3 text-right font-semibold text-primary">
                 {formatPrice(o.total)}
               </p>

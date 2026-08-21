@@ -9,6 +9,14 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
 import { Skeleton } from "@/components/ui/skeleton";
 
 export const Route = createFileRoute("/search")({
@@ -215,7 +223,6 @@ function SearchPage() {
                 setPage(1);
                 setMaxPrice(v ?? priceCap);
               }}
-
               className="mt-4 cursor-pointer"
             />
             <p className="mt-2 text-sm font-semibold text-primary">{formatPrice(price)}</p>
@@ -223,26 +230,86 @@ function SearchPage() {
         </aside>
 
         <section>
-          <p className="text-sm text-muted-foreground">
-            {isLoading ? "Searching…" : `${results.length} product${results.length === 1 ? "" : "s"}`}
-          </p>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-sm text-muted-foreground">
+              {isLoading
+                ? "Searching…"
+                : `${sorted.length} product${sorted.length === 1 ? "" : "s"}${
+                    sorted.length > 0 ? ` · page ${safePage} of ${totalPages}` : ""
+                  }`}
+            </p>
+            <Select
+              value={sort}
+              onValueChange={(v) => {
+                setPage(1);
+                setSort(v);
+              }}
+            >
+              <SelectTrigger className="w-[180px]" aria-label="Sort results">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="newest">Newest first</SelectItem>
+                <SelectItem value="oldest">Oldest first</SelectItem>
+                <SelectItem value="price-asc">Price: low to high</SelectItem>
+                <SelectItem value="price-desc">Price: high to low</SelectItem>
+                <SelectItem value="name">Name: A–Z</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
           {isLoading ? (
             <div className="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-3">
               {Array.from({ length: 6 }).map((_, i) => (
                 <Skeleton key={i} className="aspect-[3/4] w-full" />
               ))}
             </div>
-          ) : results.length > 0 ? (
-            <div className="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-3">
-              {results.map((p) => (
-                <ProductCard key={p.id} product={p} />
-              ))}
-            </div>
+          ) : paged.length > 0 ? (
+            <>
+              <div className="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-3">
+                {paged.map((p) => (
+                  <ProductCard key={p.id} product={p} />
+                ))}
+              </div>
+
+              {totalPages > 1 && (
+                <div className="mt-6 flex items-center justify-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={safePage <= 1}
+                    onClick={() => setPage(safePage - 1)}
+                  >
+                    Previous
+                  </Button>
+                  {Array.from({ length: totalPages }).map((_, i) => (
+                    <Button
+                      key={i}
+                      variant={safePage === i + 1 ? "default" : "outline"}
+                      size="sm"
+                      className="w-9"
+                      onClick={() => setPage(i + 1)}
+                    >
+                      {i + 1}
+                    </Button>
+                  ))}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={safePage >= totalPages}
+                    onClick={() => setPage(safePage + 1)}
+                  >
+                    Next
+                  </Button>
+                </div>
+              )}
+            </>
           ) : (
             <p className="py-16 text-center text-muted-foreground">
               No products match those filters.
             </p>
           )}
+
         </section>
       </div>
     </div>
