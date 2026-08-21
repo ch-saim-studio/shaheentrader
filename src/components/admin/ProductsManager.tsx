@@ -84,19 +84,33 @@ export function ProductsManager() {
 
   const save = useMutation({
     mutationFn: async () => {
+      const sizeList = draft.sizes
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+      const sizeStock: Record<string, number> = {};
+      for (const pair of draft.sizeStock.split(",")) {
+        const [key, value] = pair.split(":");
+        const name = key?.trim();
+        const n = Number(value);
+        if (name && sizeList.includes(name) && Number.isFinite(n)) {
+          sizeStock[name] = Math.max(0, Math.trunc(n));
+        }
+      }
+      const totalFromSizes = Object.values(sizeStock).reduce((a, b) => a + b, 0);
       const payload = {
         name: draft.name.trim(),
         category: draft.category,
         description: draft.description.trim(),
         price: Number(draft.price || 0),
         image_url: draft.image_url.trim(),
-        sizes: draft.sizes
-          .split(",")
-          .map((s) => s.trim())
-          .filter(Boolean),
-        stock: Number(draft.stock || 0),
+        sizes: sizeList,
+        size_stock: sizeStock,
+        stock:
+          Object.keys(sizeStock).length > 0 ? totalFromSizes : Number(draft.stock || 0),
         featured: draft.featured,
       };
+
       if (editing) {
         const { error } = await supabase.from("products").update(payload).eq("id", editing.id);
         if (error) throw error;
