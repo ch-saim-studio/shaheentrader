@@ -3,7 +3,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { CATEGORIES, formatPrice, slugify, type Product } from "@/lib/store";
+import { CATEGORIES, formatPrice, sizeStockOf, slugify, type Product } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
