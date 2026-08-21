@@ -40,6 +40,18 @@ function MyOrders() {
     },
   });
 
+  const { data: myReviews } = useQuery({
+    queryKey: ["my-reviews"],
+    queryFn: async (): Promise<{ order_id: string; product_id: string }[]> => {
+      const { data, error } = await supabase.from("reviews").select("order_id, product_id");
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+  const reviewed = new Set((myReviews ?? []).map((r) => `${r.order_id}:${r.product_id}`));
+
+
+
   // Notify the customer in-app whenever an order's status changes.
   const seen = useRef<Map<string, string> | null>(null);
   useEffect(() => {
