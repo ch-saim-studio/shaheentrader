@@ -266,7 +266,7 @@ export function ProductsManager() {
                 />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="p-stock">Stock</Label>
+                <Label htmlFor="p-stock">Stock (no sizes)</Label>
                 <Input
                   id="p-stock"
                   type="number"
@@ -283,6 +283,19 @@ export function ProductsManager() {
                 onChange={(e) => setDraft({ ...draft, sizes: e.target.value })}
               />
             </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="p-size-stock">Stock per size (e.g. S:5, M:0, L:12)</Label>
+              <Input
+                id="p-size-stock"
+                value={draft.sizeStock}
+                onChange={(e) => setDraft({ ...draft, sizeStock: e.target.value })}
+              />
+              <p className="text-xs text-muted-foreground">
+                Sizes with 0 are shown as sold out and cannot be added to a bag. Total stock is
+                calculated from these numbers.
+              </p>
+            </div>
+
             <div className="space-y-1.5">
               <Label htmlFor="p-image">Image URL</Label>
               <Input
