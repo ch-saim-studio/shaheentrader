@@ -97,9 +97,14 @@ function Checkout() {
             <Input id="name" name="name" defaultValue={username ?? ""} required />
           </div>
           <div className="space-y-2">
+            <Label htmlFor="email">Email (for order updates)</Label>
+            <Input id="email" name="email" type="email" placeholder="you@example.com" required />
+          </div>
+          <div className="space-y-2">
             <Label htmlFor="phone">Phone number</Label>
             <Input id="phone" name="phone" type="tel" placeholder="03xx-xxxxxxx" required />
           </div>
+
           <div className="space-y-2">
             <Label htmlFor="address">Delivery address</Label>
             <Textarea id="address" name="address" rows={4} required />
