@@ -44,6 +44,8 @@ type Draft = {
   image_url: string;
   sizes: string;
   stock: string;
+  sizeStock: string;
+
   featured: boolean;
 };
 
@@ -55,6 +57,8 @@ const emptyDraft: Draft = {
   image_url: "/images/tshirts.jpg",
   sizes: "S, M, L, XL",
   stock: "10",
+  sizeStock: "S:10, M:10, L:10, XL:10",
+
   featured: false,
 };
 
