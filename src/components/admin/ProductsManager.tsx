@@ -160,7 +160,11 @@ export function ProductsManager() {
       image_url: p.image_url,
       sizes: p.sizes.join(", "),
       stock: String(p.stock),
+      sizeStock: Object.entries(sizeStockOf(p))
+        .map(([s, n]) => `${s}:${n}`)
+        .join(", "),
       featured: p.featured,
+
     });
     setOpen(true);
   }
