@@ -40,6 +40,8 @@ function Checkout() {
         user_id: user.id,
         customer_name: String(form.get("name") ?? ""),
         phone: String(form.get("phone") ?? ""),
+        email: String(form.get("email") ?? ""),
+
         address: String(form.get("address") ?? ""),
         total: subtotal,
       })
