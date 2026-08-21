@@ -22,17 +22,29 @@ export const Route = createFileRoute("/_authenticated/checkout")({
   component: Checkout,
 });
 
+type PayMethod = "cod" | "online";
+
 function Checkout() {
   const { lines, subtotal, clear } = useCart();
   const { user, username } = useAuth();
   const navigate = useNavigate();
   const [busy, setBusy] = useState(false);
+  const [method, setMethod] = useState<PayMethod>("cod");
 
   async function placeOrder(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!user || lines.length === 0) return;
     const form = new FormData(e.currentTarget);
     setBusy(true);
+
+    let paymentRef: string | null = null;
+    if (method === "online") {
+      // Demo gateway: no real money moves, we just simulate an approved charge.
+      toast.loading("Processing demo payment…", { id: "demo-pay" });
+      await new Promise((r) => setTimeout(r, 1500));
+      paymentRef = `DEMO-${Date.now().toString(36).toUpperCase()}`;
+      toast.success("Demo payment approved (no money charged)", { id: "demo-pay" });
+    }
 
     const { data: order, error } = await supabase
       .from("orders")
@@ -44,6 +56,9 @@ function Checkout() {
 
         address: String(form.get("address") ?? ""),
         total: subtotal,
+        payment_method: method === "online" ? "online_demo" : "cod",
+        payment_status: method === "online" ? "paid_demo" : "unpaid",
+        payment_ref: paymentRef,
       })
       .select("id")
       .single();
