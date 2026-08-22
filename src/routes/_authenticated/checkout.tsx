@@ -126,14 +126,71 @@ function Checkout() {
             <Label htmlFor="address">Delivery address</Label>
             <Textarea id="address" name="address" rows={4} required />
           </div>
-          <p className="text-xs text-muted-foreground">Payment: cash on delivery.</p>
+          <div className="space-y-2 border-t border-border pt-4">
+            <Label>Payment method</Label>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {([
+                { id: "cod", title: "Cash on delivery", note: "Pay the rider when it arrives" },
+                { id: "online", title: "Pay online (demo)", note: "Simulated — no money is charged" },
+              ] as const).map((opt) => (
+                <button
+                  key={opt.id}
+                  type="button"
+                  onClick={() => setMethod(opt.id)}
+                  className={`rounded-md border p-3 text-left transition ${
+                    method === opt.id
+                      ? "border-primary bg-primary/10"
+                      : "border-border hover:border-primary/50"
+                  }`}
+                >
+                  <span className="block text-sm font-semibold">{opt.title}</span>
+                  <span className="block text-xs text-muted-foreground">{opt.note}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {method === "online" && (
+            <div className="space-y-3 rounded-md border border-dashed border-primary/50 bg-primary/5 p-4">
+              <p className="text-xs font-semibold uppercase tracking-wider text-primary">
+                Demo card — test mode only
+              </p>
+              <div className="space-y-2">
+                <Label htmlFor="card">Card number</Label>
+                <Input
+                  id="card"
+                  name="card"
+                  inputMode="numeric"
+                  placeholder="4242 4242 4242 4242"
+                  defaultValue="4242 4242 4242 4242"
+                  required
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-2">
+                  <Label htmlFor="exp">Expiry</Label>
+                  <Input id="exp" name="exp" placeholder="12/30" defaultValue="12/30" required />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="cvc">CVC</Label>
+                  <Input id="cvc" name="cvc" placeholder="123" defaultValue="123" required />
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                This is a demo checkout. No real payment is processed and no amount is transferred.
+              </p>
+            </div>
+          )}
+
           <Button
             type="submit"
             size="lg"
             className="w-full font-semibold uppercase tracking-wide"
             disabled={busy}
           >
-            Place order · {formatPrice(subtotal)}
+            {busy
+              ? "Processing…"
+              : `${method === "online" ? "Pay (demo)" : "Place order"} · ${formatPrice(subtotal)}`}
           </Button>
         </form>
 
