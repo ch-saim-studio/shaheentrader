@@ -1,6 +1,6 @@
 # Shaheen Style Hub
 
-create an ecommerce app for shaheen trader store . this store sells tshirts ,hoddies ,paints  and shoes. create seperate section for tshirts, hoodies ,paints and shoes. Create good  mobile friendly design first and add more funtionalties like authentication ,admin dashboard (only for admin).the admin dashboard should have all admin funtionalties.The admin username is hardcoded "admin "and password is @79525$
+create an ecommerce app for shaheen trader store . this store sells tshirts ,hoddies ,paints  and shoes. create seperate section for tshirts, hoodies ,paints and shoes. Create good  mobile friendly design first and add more funtionalties like authentication ,admin dashboard (only for admin).the admin dashboard should have all admin funtionalties
 
 This project was built with [Lovable](https://lovable.dev).
 
