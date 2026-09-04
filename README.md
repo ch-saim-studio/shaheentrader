@@ -2,11 +2,7 @@
 
 create an ecommerce app for shaheen trader store . this store sells tshirts ,hoddies ,paints  and shoes. create seperate section for tshirts, hoodies ,paints and shoes. Create good  mobile friendly design first and add more funtionalties like authentication ,admin dashboard (only for admin).the admin dashboard should have all admin funtionalties
 
-This project was built with [Lovable](https://lovable.dev).
 
-**Live app**: https://shaheentrader.lovable.app
-
-## Build with Lovable
 
 Continue developing this project in the [Lovable editor](https://lovable.dev/projects/2b274a69-d38c-49da-8ad1-ba394492a4ca).
 
